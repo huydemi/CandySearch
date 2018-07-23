@@ -37,6 +37,10 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    // Setup the Scope Bar
+    searchController.searchBar.scopeButtonTitles = ["All", "Chocolate", "Hard", "Other"]
+    searchController.searchBar.delegate = self
+    
     candies = [
       Candy(category:"Chocolate", name:"Chocolate Bar"),
       Candy(category:"Chocolate", name:"Chocolate Chip"),
@@ -134,14 +138,20 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
   
   func filterContentForSearchText(_ searchText: String, scope: String = "All") {
     filteredCandies = candies.filter({( candy : Candy) -> Bool in
-      return candy.name.lowercased().contains(searchText.lowercased())
+      let doesCategoryMatch = (scope == "All") || (candy.category == scope)
+      
+      if searchBarIsEmpty() {
+        return doesCategoryMatch
+      } else {
+        return doesCategoryMatch && candy.name.lowercased().contains(searchText.lowercased())
+      }
     })
-    
     tableView.reloadData()
   }
   
   func isFiltering() -> Bool {
-    return searchController.isActive && !searchBarIsEmpty()
+    let searchBarScopeIsFiltering = searchController.searchBar.selectedScopeButtonIndex != 0
+    return searchController.isActive && (!searchBarIsEmpty() || searchBarScopeIsFiltering)
   }
   
 }
@@ -149,6 +159,15 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
 extension MasterViewController: UISearchResultsUpdating {
   // MARK: - UISearchResultsUpdating Delegate
   func updateSearchResults(for searchController: UISearchController) {
-    filterContentForSearchText(searchController.searchBar.text!)
+    let searchBar = searchController.searchBar
+    let scope = searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]
+    filterContentForSearchText(searchController.searchBar.text!, scope: scope)
+  }
+}
+
+extension MasterViewController: UISearchBarDelegate {
+  // MARK: - UISearchBar Delegate
+  func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+    filterContentForSearchText(searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
   }
 }
