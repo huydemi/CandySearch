@@ -30,6 +30,7 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
   
   var detailViewController: DetailViewController? = nil
   var candies = [Candy]()
+  var filteredCandies = [Candy]()
   let searchController = UISearchController(searchResultsController: nil)
   
   // MARK: - View Setup
@@ -110,11 +111,27 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
       }
     }
   }
+  
+  // MARK: - Private instance methods
+  
+  func searchBarIsEmpty() -> Bool {
+    // Returns true if the text is empty or nil
+    return searchController.searchBar.text?.isEmpty ?? true
+  }
+  
+  func filterContentForSearchText(_ searchText: String, scope: String = "All") {
+    filteredCandies = candies.filter({( candy : Candy) -> Bool in
+      return candy.name.lowercased().contains(searchText.lowercased())
+    })
+    
+    tableView.reloadData()
+  }
+  
 }
 
 extension MasterViewController: UISearchResultsUpdating {
   // MARK: - UISearchResultsUpdating Delegate
   func updateSearchResults(for searchController: UISearchController) {
-    // TODO
+    filterContentForSearchText(searchController.searchBar.text!)
   }
 }
