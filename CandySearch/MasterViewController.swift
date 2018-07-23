@@ -30,6 +30,7 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
   
   var detailViewController: DetailViewController? = nil
   var candies = [Candy]()
+  let searchController = UISearchController(searchResultsController: nil)
   
   // MARK: - View Setup
   override func viewDidLoad() {
@@ -52,6 +53,13 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
       Candy(category:"Other", name:"Liquorice"),
       Candy(category:"Hard", name:"Toffee Apple")
     ]
+    
+    // Setup the Search Controller
+    searchController.searchResultsUpdater = self
+    searchController.obscuresBackgroundDuringPresentation = false
+    searchController.searchBar.placeholder = "Search Candies"
+    navigationItem.searchController = searchController
+    definesPresentationContext = true
     
     if let splitViewController = splitViewController {
       let controllers = splitViewController.viewControllers
@@ -101,5 +109,12 @@ class MasterViewController: UIViewController, UITableViewDataSource, UITableView
         controller.navigationItem.leftItemsSupplementBackButton = true
       }
     }
+  }
+}
+
+extension MasterViewController: UISearchResultsUpdating {
+  // MARK: - UISearchResultsUpdating Delegate
+  func updateSearchResults(for searchController: UISearchController) {
+    // TODO
   }
 }
